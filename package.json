@@ -1,0 +1,33 @@
+{
+  "name": "wa_service",
+  "version": "1.0.0",
+  "description": "wa service for notification app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ragil000/nap.wa.service.git"
+  },
+  "keywords": [
+    "nap",
+    "whatsapp",
+    "wa",
+    "service",
+    "notification"
+  ],
+  "author": "RMY",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ragil000/nap.wa.service/issues"
+  },
+  "homepage": "https://github.com/ragil000/nap.wa.service#readme",
+  "dependencies": {
+    "dotenv": "^9.0.2",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "twilio": "^3.62.0"
+  }
+}
