@@ -23,7 +23,7 @@ const schemaModel = mongoose.Schema({
     },
     scheduleType: {
         type: String,
-        enum: ['repeated', 'nonRepeated'],
+        enum: ['repeated', 'nonRepeated', 'progress'],
         default: 'nonRepeated'
     },
     scheduleTime: {

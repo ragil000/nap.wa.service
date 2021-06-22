@@ -15,7 +15,7 @@ const checker = async () => {
     // mengecek kedalam database apakah pada rentang waktu jam,menit dan tanggal saat ini ada task wa yang harus dikirim
     // 'scheduleTime.minutes': { $lte: String(parseInt(minutes)+1), $gte: String(parseInt(minutes)-1) } => ini mengecek task pada rentang waktu antara 1 menit sebelum atau 1 menit setelah, ini dilakukan untuk mencegah task yang terlewat karena terhambat mengerjakan task sebelumnya (bisa jadi saat mengirim wa waktunya lama sekali)
     // lastSent: { $ne: `${day}-${month}-${year}` } => khusus untuk task yang sifatnya repeated/berulang dikirim, jadi tidak akan melakukan pengiriman berulang di hari yang sama
-    const getData = await Model.find({ platform: 'whatsapp', 'scheduleTime.hours': String(parseInt(hours)), 'scheduleTime.minutes': { $lte: String(parseInt(minutes)+1), $gte: String(parseInt(minutes)-1) }, lastSent: { $ne: `${day}-${month}-${year}` }, status: 'active', softDelete: null }).sort({ receiversCount: 'asc' })
+    const getData = await Model.find({ platform: 'whatsapp', 'scheduleTime.hours': parseInt(hours), 'scheduleTime.minutes': { $lte: parseInt(minutes)+1, $gte: parseInt(minutes) }, lastSent: { $ne: `${day}-${month}-${year}` }, status: 'active', softDelete: null }).sort({ receiversCount: 'asc' })
     if(getData.length <= 0) {
 
       // jika tidak ada task, lakukan lagi pengecekan setelah 3 detik (3000)
@@ -32,6 +32,9 @@ const checker = async () => {
             if(getData[i].scheduleType == 'nonRepeated') {
                 if(getData[i].scheduleTime.days == `${day}-${month}-${year}`) {
                     
+                    // untuk mengupdate bahwa tugas sedang dikerjakan
+                    await Model.updateOne({ _id: getData[i]._id }, { $set: { 'status': 'progress' } })
+
                     // ini fungsi untuk mengirim wa
                     await Sender.sender(getData[i])
                     
@@ -41,11 +44,14 @@ const checker = async () => {
             }else if(getData[i].scheduleType == 'repeated') {
                 if(getData[i].scheduleTime.days.includes(nameDays[dayIndex])) {
                     
+                    // untuk mengupdate bahwa tugas sedang dikerjakan
+                    await Model.updateOne({ _id: getData[i]._id }, { $set: { 'status': 'progress' } })
+
                     // ini fungsi untuk mengirim wa
                     await Sender.sender(getData[i])
                     
                     // jika sifatnya berulang (repeated) ubah lastSent menjadi tanggal hari ini, agar tidak berulang dikirim pada hari yang sama
-                    await Model.updateOne({ _id: getData[i]._id }, { $set: { 'lastSent': `${day}-${month}-${year}` } })
+                    await Model.updateOne({ _id: getData[i]._id }, { $set: { 'lastSent': `${day}-${month}-${year}`, 'status': 'active' } })
                 }
             }
         }
